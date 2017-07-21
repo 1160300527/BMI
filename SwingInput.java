@@ -27,7 +27,7 @@ public class SwingInput extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					SwingChange frame = new SwingChange();
+					SwingInput frame = new SwingInput();
 					frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -122,7 +122,6 @@ public class SwingInput extends JFrame {
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String filename=textArea_5.getText();
-				bmi.Students=bmi.readFile(filename);
 			}
 		});
 		button.setBounds(276, 207, 92, 37);
@@ -135,7 +134,7 @@ public class SwingInput extends JFrame {
 		contentPane.add(label_4);
 		
 		JLabel label_5 = new JLabel("\u6587\u4EF6\u5730\u5740");
-		label_5.setBounds(13, 218, 54, 15);
+		label_5.setBounds(12, 218, 54, 15);
 		contentPane.add(label_5);
 	}
 	
@@ -143,4 +142,5 @@ public class SwingInput extends JFrame {
 		BigDecimal   b   =   new   BigDecimal(d);  
 		return  b.setScale(2,   BigDecimal.ROUND_HALF_UP).doubleValue(); 
 	}
+
 }
