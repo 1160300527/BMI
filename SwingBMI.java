@@ -1,8 +1,6 @@
 package edu.hit1160300527.experiment4;
 
 import java.awt.EventQueue;
-
-import javax.swing.Box;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -10,40 +8,40 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.border.EmptyBorder;
-
-import edu.hit1160300527.experiment3.OOBMI.Student;
-
 import java.awt.Button;
 import javax.swing.JMenuBar;
 import javax.swing.JOptionPane;
-
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
+import java.util.Set;
 import java.awt.event.ActionEvent;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.SystemColor;
-import javax.swing.JCheckBox;
-import javax.swing.JRadioButton;
-import javax.swing.JToolBar;
-import javax.swing.JMenu;
-import javax.swing.JRadioButtonMenuItem;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.BoxLayout;
 import java.awt.Font;
-import javax.swing.DropMode;
-import javax.swing.border.BevelBorder;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.LineBorder;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartFrame;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.data.xy.IntervalXYDataset;
+import org.jfree.data.xy.XYBarDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+
+
 import java.awt.BorderLayout;
 
 public class SwingBMI extends JFrame {
@@ -59,13 +57,16 @@ public class SwingBMI extends JFrame {
 		return str;
 	}
 	}
-	private double aveBMI;//平均数
+	private static double aveBMI;//平均数
 	ArrayList<Double> modeBMI=new ArrayList<Double>();//众数
-	private double medBMI;//中位数
-	private double varBMI;//方差
-	private JPanel contentPane;
+	private static double medBMI;//中位数
+	private static double varBMI;//方差
+	private static JPanel contentPane;
+	private static 
+	
 	
 	ArrayList<Student>Students=new ArrayList<Student>();
+	private JTextField textField_6;
 	/**
 	 * Launch the application.
 	 */
@@ -146,6 +147,11 @@ public class SwingBMI extends JFrame {
 		button_3.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try {
+					if(Students.size()==0)
+					{
+						JOptionPane.showMessageDialog(null,"The number of the students mustn't be 0,so we randomly generated 20 students!","Alert",JOptionPane.ERROR_MESSAGE);
+						genStudents(20);
+					}
 					SwingCal cal = new SwingCal();
 					cal.setVisible(true);
 				} catch (Exception e1) {
@@ -283,6 +289,30 @@ public class SwingBMI extends JFrame {
 		});
 		button_5.setBounds(309, 57, 110, 28);
 		contentPane.add(button_5);
+		
+		textField_6 = new JTextField();
+		textField_6.setFont(new Font("Dialog", Font.PLAIN, 16));
+		textField_6.setBounds(61, 91, 201, 33);
+		contentPane.add(textField_6);
+		textField_6.setColumns(10);
+		
+		JButton button_4 = new JButton("\u4FDD\u5B58\u5230\u6B64\u6587\u4EF6");
+		button_4.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if(textField_6.getText()==null||textField_6.getText().equals(""))
+				{
+					JOptionPane.showMessageDialog(null,"The direction of the file can't be empty","Alert",JOptionPane.ERROR_MESSAGE);
+				}
+				else
+				{
+					String filename=textField_6.getText();
+					saveFile(Students,filename);
+				}
+				textField_6.setText("");
+			}
+		});
+		button_4.setBounds(291, 97, 128, 27);
+		contentPane.add(button_4);
 		
 	}
 	public void readFile(String filename){
@@ -520,15 +550,15 @@ public class SwingBMI extends JFrame {
 						{
 							Students.add(oneStudent);
 							JOptionPane.showMessageDialog(null,"Add the student successfully","Successfully",JOptionPane.INFORMATION_MESSAGE);
-							textField.setText("");
-							textField_1.setText("");
-							textField_2.setText("");
-							textField_3.setText("");
 						}
 						else
 						{
 							JOptionPane.showMessageDialog(null,"The id is Exists","Alert",JOptionPane.ERROR_MESSAGE);
 						}
+						textField.setText("");
+						textField_1.setText("");
+						textField_2.setText("");
+						textField_3.setText("");
 						textField_4.setText(String.valueOf(oneStudent.bmi));
 					}
 				}
@@ -539,9 +569,16 @@ public class SwingBMI extends JFrame {
 			JButton button = new JButton("\u8BFB\u53D6\u6587\u4EF6");
 			button.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					String filename=textField_5.getText();
-					readFile(filename);
-					textField_5.setText("");
+					if(textField_5.getText()==null||textField_5.getText().equals(""))
+					{
+						JOptionPane.showMessageDialog(null,"The direction of the file can't be empty","Alert",JOptionPane.ERROR_MESSAGE);
+					}
+					else
+					{
+						String filename=textField_5.getText();
+						readFile(filename);
+						textField_5.setText("");
+					}
 				}
 			});
 			button.setBounds(276, 207, 92, 37);
@@ -671,7 +708,7 @@ public class SwingBMI extends JFrame {
 		}
 	}
 	public class SwingDelete extends JFrame {
-
+		boolean flag=false;
 		private JPanel contentPane;
 		private JTextField textField;
 
@@ -707,26 +744,30 @@ public class SwingBMI extends JFrame {
 			sp.setViewportView(textArea);
 			textArea.setEditable(false);
 			
+			
 			JButton btnNewButton = new JButton("\u59D3\u540D");
 			btnNewButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if(textField.getText()!=null&&!textField.getText().equals(""))
-					{
-						String name=textField.getText();
-						if(!findName(name,textArea)){
-							JOptionPane.showMessageDialog(null,"The name don't exit","Alert",JOptionPane.ERROR_MESSAGE);
+					if(!flag){
+						if(textField.getText()!=null&&!textField.getText().equals(""))
+						{
+							String name=textField.getText();
+							if(!findName(name,textArea)){
+								JOptionPane.showMessageDialog(null,"The name don't exit","Alert",JOptionPane.ERROR_MESSAGE);
+								textArea.setText("");
+								textField.setText("");
+							}
+							else{
+								textField.setEditable(false);
+								flag=true;
+							}
+						}
+						else
+						{
+							JOptionPane.showMessageDialog(null,"The name shouldn't be empty","Alert",JOptionPane.ERROR_MESSAGE);
 							textArea.setText("");
-							textField.setText("");
-						}
-						else{
-							textField.setEditable(false);
-						}
+						}	
 					}
-					else
-					{
-						JOptionPane.showMessageDialog(null,"The name shouldn't be empty","Alert",JOptionPane.ERROR_MESSAGE);
-						textArea.setText("");
-					}	
 				}
 			});
 			btnNewButton.setBounds(331, 10, 93, 24);
@@ -735,25 +776,28 @@ public class SwingBMI extends JFrame {
 			JButton btnNewButton_1 = new JButton("\u5B66\u53F7");
 			btnNewButton_1.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if(textField.getText()!=null&&!textField.getText().equals(""))
-					{
-						String id=textField.getText();
-						if(!findId(id,textArea)){
-							JOptionPane.showMessageDialog(null,"The id don't exit","Alert",JOptionPane.ERROR_MESSAGE);
+					if(!flag){
+						if(textField.getText()!=null&&!textField.getText().equals(""))
+						{
+							String id=textField.getText();
+							if(!findId(id,textArea)){
+								JOptionPane.showMessageDialog(null,"The id don't exit","Alert",JOptionPane.ERROR_MESSAGE);
+								textArea.setText("");
+								textField.setText("");
+							}
+							else{
+								textField.setEditable(false);
+								flag=true;
+							}
+						}
+						else
+						{
+							JOptionPane.showMessageDialog(null,"The id shouldn't be empty","Alert",JOptionPane.ERROR_MESSAGE);
 							textArea.setText("");
-							textField.setText("");
-						}
-						else{
-							textField.setEditable(false);
 						}
 					}
-					else
-					{
-						JOptionPane.showMessageDialog(null,"The id shouldn't be empty","Alert",JOptionPane.ERROR_MESSAGE);
-						textArea.setText("");
-					}
-				}
-			});
+				}	
+			});	
 			btnNewButton_1.setBounds(331, 35, 93, 24);
 			contentPane.add(btnNewButton_1);
 			
@@ -765,22 +809,21 @@ public class SwingBMI extends JFrame {
 			JButton btnNewButton_2 = new JButton("\u786E\u8BA4\u5220\u9664");
 			btnNewButton_2.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if(textField.getText()!=null&&!textField.getText().equals(""))
-					{
+					if(flag){
 						String str=textField.getText();
 						for(int i=0;i<Students.size();i++){
 							if(str.equals(Students.get(i).id)||str.equals(Students.get(i).name)){
 								Students.remove(Students.get(i));
 							}
 						}
+						JOptionPane.showMessageDialog(null,"You remove the student from the students successfully","Information",JOptionPane.INFORMATION_MESSAGE);
 						textField.setText("");
 						textField.setEditable(true);
 						textArea.setText("");
+						flag=false;
 					}
-					else
-					{
-						JOptionPane.showMessageDialog(null,"The id shouldn't be empty","Alert",JOptionPane.ERROR_MESSAGE);
-						textArea.setText("");
+					else{
+						JOptionPane.showMessageDialog(null,"Please search the student first!","Alert",JOptionPane.ERROR_MESSAGE);
 					}
 				}
 			});
@@ -793,6 +836,7 @@ public class SwingBMI extends JFrame {
 					textField.setEditable(true);
 					textField.setText("");
 					textArea.setText("");
+					flag=false;
 				}
 			});
 			btnNewButton_3.setFont(new Font("宋体", Font.PLAIN, 16));
@@ -834,5 +878,265 @@ public class SwingBMI extends JFrame {
 			}
 		}
 		return false;
+	}
+	public void ave(){
+		double sum=0;
+		for(Student student:Students){
+			sum+=student.bmi;
+		}
+		aveBMI=sum/Students.size();
+		BigDecimal   b   =   new   BigDecimal(aveBMI);  
+		aveBMI   =   b.setScale(2,   BigDecimal.ROUND_HALF_UP).doubleValue();  
+
+	}
+	public ArrayList<Double> mod(){
+		ArrayList<Double> modeBMI=new ArrayList<Double>();
+        HashMap<Double,Integer> hm = new HashMap<Double,Integer>();
+        Iterator<Student> iter=Students.iterator();
+        Integer max=0;
+        while(iter.hasNext()){
+        	Double bmi=new Double(iter.next().bmi);
+        	if (!hm.containsKey(bmi)){
+                hm.put(bmi, 1);	    		 
+           }else{ 
+                hm.put(bmi,hm.get(bmi).intValue()+1);
+           }
+        }
+        Set<Double> keys = hm.keySet();
+        for (Double bmi : keys) {
+        	if(hm.get(bmi).compareTo(max)>0)
+        		max=hm.get(bmi);
+        }
+        for(Double bmi:keys){
+        	if(hm.get(bmi).equals(max)){
+        		modeBMI.add(bmi);
+        	}
+        }
+        return modeBMI;
+	}
+	public double med(){
+		double medBMI=0;
+		sortStudents(new bmisComparator());
+		int size=Students.size();
+		medBMI+= Students.get(size/2).bmi;
+		if(size%2==0)
+		{
+			medBMI=(medBMI+Students.get(size/2-1).bmi)/2;
+		}
+		return toSecond(medBMI);
+	}
+	public void var(){
+		varBMI=0;
+		for(Student student:Students){
+			varBMI+=Math.pow(student.bmi-aveBMI, 2);
+		}
+		varBMI/=Students.size();
+		BigDecimal   b   =   new   BigDecimal(varBMI);  
+		varBMI   =   b.setScale(2,   BigDecimal.ROUND_HALF_UP).doubleValue(); 
+	}
+	public class SwingCal extends JFrame {
+
+		private JPanel contentPane;
+		private JTextField textField;
+		private JTextField textField_1;
+		private JTextField textField_2;
+
+		/**
+		 * Launch the application.
+		 */
+		/**
+		 * Create the frame.
+		 */
+		public SwingCal() {
+			setTitle("Calculate");
+			setBounds(100, 100, 450, 300);
+			contentPane = new JPanel();
+			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+			setContentPane(contentPane);
+			contentPane.setLayout(null);
+			
+			ave();
+			modeBMI=mod();
+		    medBMI=med();
+			var();
+			
+			JPanel panel = new JPanel();
+			panel.setBounds(32, 226, 349, 35);
+			contentPane.add(panel);
+			panel.setLayout(null);
+			
+			JMenuBar menuBar = new JMenuBar();
+			menuBar.setBounds(0, 10, 373, 25);
+			panel.add(menuBar);
+			
+			JButton btnNewButton = new JButton("\u8EAB\u9AD8\u67F1\u5F62\u56FE");
+			btnNewButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					sortStudents(new heightsComparator());
+					int num[]=new int[10];
+					double min=Students.get(0).height;
+					double max=Students.get(Students.size()-1).height;
+					double width=(max-min)/10.0;
+					Iterator<Student> iter=Students.iterator();
+					while(iter.hasNext()){
+						Student student=iter.next();
+						int n=(int)((student.height-min)/width);
+						if(n==10)
+						{
+							num[9]+=1;
+						}
+						else
+							num[n]+=1;
+						//System.out.println(n);
+					}
+					showDraw(min,max,width,num,"Height");
+				}
+			});
+			btnNewButton.setFont(new Font("宋体", Font.PLAIN, 15));
+			menuBar.add(btnNewButton);
+			
+			JButton btnNewButton_1 = new JButton("\u4F53\u91CD\u67F1\u5F62\u56FE");
+			btnNewButton_1.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					sortStudents(new weightsComparator());
+					int num[]=new int[10];
+					double min=Students.get(0).weight;
+					double max=Students.get(Students.size()-1).weight;
+					double width=(max-min)/10.0;
+					Iterator<Student> iter=Students.iterator();
+					while(iter.hasNext()){
+						Student student=iter.next();
+						int n=(int)((student.weight-min)/width);
+						if(n==10)
+						{
+							num[9]+=1;
+						}
+						else
+							num[n]+=1;
+					}
+					showDraw(min,max,width,num,"Weight");
+				}
+			});
+			btnNewButton_1.setFont(new Font("宋体", Font.PLAIN, 16));
+			menuBar.add(btnNewButton_1);
+			
+			JButton btnBmi = new JButton("BMI\u67F1\u5F62\u56FE");
+			btnBmi.setFont(new Font("宋体", Font.PLAIN, 16));
+			menuBar.add(btnBmi);
+			
+			textField = new JTextField();
+			textField.setBounds(236, 12, 145, 35);
+			contentPane.add(textField);
+			textField.setColumns(10);
+			textField.setEditable(false);
+			textField.setText(String.valueOf(aveBMI));
+			
+			textField_1 = new JTextField();
+			textField_1.setBounds(236, 59, 145, 35);
+			contentPane.add(textField_1);
+			textField_1.setColumns(10);
+			textField_1.setEditable(false);
+			textField_1.setText(String.valueOf(medBMI));
+			
+			textField_2 = new JTextField();
+			textField_2.setBounds(236, 106, 145, 35);
+			contentPane.add(textField_2);
+			textField_2.setColumns(10);
+			textField_2.setEditable(false);
+			textField_2.setText(String.valueOf(varBMI));
+			
+			JLabel label = new JLabel("\u5E73\u5747\u6570\uFF1A");
+			label.setFont(new Font("宋体", Font.PLAIN, 16));
+			label.setBounds(151, 12, 77, 35);
+			contentPane.add(label);
+			
+			JLabel label_1 = new JLabel("\u4E2D\u4F4D\u6570\uFF1A");
+			label_1.setFont(new Font("宋体", Font.PLAIN, 16));
+			label_1.setBounds(151, 59, 77, 35);
+			contentPane.add(label_1);
+			
+			JLabel label_2 = new JLabel("\u65B9\u5DEE\uFF1A");
+			label_2.setFont(new Font("宋体", Font.PLAIN, 16));
+			label_2.setBounds(151, 103, 77, 35);
+			contentPane.add(label_2);
+			
+			JLabel label_3 = new JLabel("\u4F17\u6570\uFF1A");
+			label_3.setFont(new Font("宋体", Font.PLAIN, 16));
+			label_3.setBounds(43, 139, 103, 35);
+			contentPane.add(label_3);
+			
+			JScrollPane scrollPane = new JScrollPane();
+			scrollPane.setBounds(31, 172, 343, 45);
+			contentPane.add(scrollPane);
+			
+			JTextArea textArea = new JTextArea();
+			scrollPane.setViewportView(textArea);
+			textArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
+			btnBmi.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent arg0) {
+					sortStudents(new bmisComparator());
+					int num[]=new int[10];
+					double min=Students.get(0).bmi;
+					double max=Students.get(Students.size()-1).bmi;
+					double width=(max-min)/10.0;
+					Iterator<Student> iter=Students.iterator();
+					while(iter.hasNext()){
+						Student student=iter.next();
+						int n=(int)((student.bmi-min)/width);
+						if(n==10)
+						{
+							num[9]+=1;
+						}
+						else
+							num[n]+=1;
+					}
+					showDraw(min,max,width,num,"BMI");
+				}
+			});
+			String mode="";
+			Iterator<Student>iter=Students.iterator();
+			while(iter.hasNext()){
+				mode=mode+String.valueOf(iter.next().bmi)+"\t";
+			}
+			textArea.setText(mode);
+			textArea.setEditable(false);
+		}
+	}
+	public IntervalXYDataset createBMI(double min,double width,int []num,String butt) {
+		XYSeriesCollection seriesCollection = new XYSeriesCollection();
+		XYSeries series1 = new XYSeries(butt+" Statistics");
+		for(int i=0;i<10;i++)
+		{
+			series1.add(i+1,num[i]);
+		}
+		series1.setMaximumItemCount(10);
+		seriesCollection.addSeries(series1);
+		return new XYBarDataset(seriesCollection, 0.9);
+	}
+	public void showDraw(double min,double max,double width,int []num,String butt){
+		JFreeChart chart = ChartFactory.createXYBarChart(butt+" Statistics",
+				"min:"+String.valueOf(min)+"~"+"max"+String.valueOf(max)+"    Intervals="+String.valueOf(toSecond(width)), false, "Number of Students", 
+				createBMI(min,width,num,butt), PlotOrientation.VERTICAL,
+				true, false, false);
+				ChartFrame frame = new ChartFrame("BMI Statistics", chart);
+				frame.pack();
+				frame.setVisible(true);
+	}
+	public void saveFile(ArrayList<Student> students, String filename){
+		FileWriter file=null;
+		try{	
+			file=new FileWriter(filename,false);
+			for(Student student:Students){
+				file.write(String.format("%s\t%s\t%.2f\t%.2f\t%.2f\r\n",student.id,student.name,student.height,student.weight,student.bmi));
+			}
+			JOptionPane.showMessageDialog(null,"Save to"+filename+" sucessfully","Successfully",JOptionPane.INFORMATION_MESSAGE);
+		}catch (Exception e) {
+            JOptionPane.showMessageDialog(null,"The direction is wrong","Alert",JOptionPane.ERROR_MESSAGE);
+		}
+		finally{
+            try{
+                     file.close();
+            	}catch(Exception e){}
+		}
 	}
 }
