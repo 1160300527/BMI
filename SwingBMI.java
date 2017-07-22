@@ -61,6 +61,14 @@ public class SwingBMI extends JFrame {
 	ArrayList<Double> modeBMI=new ArrayList<Double>();//众数
 	private static double medBMI;//中位数
 	private static double varBMI;//方差
+	private static double aveHeight;//平均数
+	ArrayList<Double> modeHeight=new ArrayList<Double>();//众数
+	private static double medHeight;//中位数
+	private static double varHeight;//方差
+	private static double aveWeight;//平均数
+	ArrayList<Double> modeWeight=new ArrayList<Double>();//众数
+	private static double medWeight;//中位数
+	private static double varWeight;//方差
 	private static JPanel contentPane;
 	private static 
 	
@@ -472,7 +480,7 @@ public class SwingBMI extends JFrame {
 		 * Create the frame.
 		 */
 		public SwingInput() {
-			setTitle("Change the information");
+			setTitle("Input the information");
 			setBounds(100, 100, 450, 300);
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -880,13 +888,20 @@ public class SwingBMI extends JFrame {
 		return false;
 	}
 	public void ave(){
-		double sum=0;
+		double sumBMI=0;
+		double sumHeight=0;
+		double sumWeight=0;
 		for(Student student:Students){
-			sum+=student.bmi;
+			sumBMI+=student.bmi;
+			sumHeight+=student.height;
+			sumWeight+=student.weight;
 		}
-		aveBMI=sum/Students.size();
-		BigDecimal   b   =   new   BigDecimal(aveBMI);  
-		aveBMI   =   b.setScale(2,   BigDecimal.ROUND_HALF_UP).doubleValue();  
+		aveBMI=sumBMI/Students.size();
+		aveBMI=toSecond(aveBMI);
+		aveHeight=sumHeight/Students.size();
+		aveHeight=toSecond(aveHeight);
+		aveWeight=sumWeight/Students.size();
+		aveWeight=toSecond(aveWeight);
 
 	}
 	public ArrayList<Double> mod(){
@@ -914,6 +929,56 @@ public class SwingBMI extends JFrame {
         }
         return modeBMI;
 	}
+	public ArrayList<Double> modHeight(){
+		ArrayList<Double> modeHeight=new ArrayList<Double>();
+        HashMap<Double,Integer> hm = new HashMap<Double,Integer>();
+        Iterator<Student> iter=Students.iterator();
+        Integer max=0;
+        while(iter.hasNext()){
+        	Double height=new Double(iter.next().height);
+        	if (!hm.containsKey(height)){
+                hm.put(height, 1);	    		 
+           }else{ 
+                hm.put(height,hm.get(height).intValue()+1);
+           }
+        }
+        Set<Double> keys = hm.keySet();
+        for (Double height : keys) {
+        	if(hm.get(height).compareTo(max)>0)
+        		max=hm.get(height);
+        }
+        for(Double height:keys){
+        	if(hm.get(height).equals(max)){
+        		modeHeight.add(height);
+        	}
+        }
+        return modeHeight;
+	}
+	public ArrayList<Double> modWeight(){
+		ArrayList<Double> modeWeight=new ArrayList<Double>();
+        HashMap<Double,Integer> hm = new HashMap<Double,Integer>();
+        Iterator<Student> iter=Students.iterator();
+        Integer max=0;
+        while(iter.hasNext()){
+        	Double weight=new Double(iter.next().weight);
+        	if (!hm.containsKey(weight)){
+                hm.put(weight, 1);	    		 
+           }else{ 
+                hm.put(weight,hm.get(weight).intValue()+1);
+           }
+        }
+        Set<Double> keys = hm.keySet();
+        for (Double weight : keys) {
+        	if(hm.get(weight).compareTo(max)>0)
+        		max=hm.get(weight);
+        }
+        for(Double weight:keys){
+        	if(hm.get(weight).equals(max)){
+        		modeWeight.add(weight);
+        	}
+        }
+        return modeWeight;
+	}
 	public double med(){
 		double medBMI=0;
 		sortStudents(new bmisComparator());
@@ -925,14 +990,43 @@ public class SwingBMI extends JFrame {
 		}
 		return toSecond(medBMI);
 	}
+	public double medHeight(){
+		double medHeight=0;
+		sortStudents(new heightsComparator());
+		int size=Students.size();
+		medHeight+= Students.get(size/2).height;
+		if(size%2==0)
+		{
+			medHeight=(medHeight+Students.get(size/2-1).height)/2;
+		}
+		return toSecond(medHeight);
+	}
+	public double medWeight(){
+		double medWeight=0;
+		sortStudents(new heightsComparator());
+		int size=Students.size();
+		medWeight+= Students.get(size/2).weight;
+		if(size%2==0)
+		{
+			medWeight=(medWeight+Students.get(size/2-1).weight)/2;
+		}
+		return toSecond(medWeight);
+	}
 	public void var(){
 		varBMI=0;
+		varHeight=0;
+		varWeight=0;
 		for(Student student:Students){
 			varBMI+=Math.pow(student.bmi-aveBMI, 2);
+			varHeight+=Math.pow(student.height-aveHeight, 2);
+			varWeight+=Math.pow(student.weight-aveWeight, 2);
 		}
 		varBMI/=Students.size();
-		BigDecimal   b   =   new   BigDecimal(varBMI);  
-		varBMI   =   b.setScale(2,   BigDecimal.ROUND_HALF_UP).doubleValue(); 
+		varBMI=toSecond(varBMI);
+		varHeight/=Students.size();
+		varHeight=toSecond(varHeight);
+		varWeight/=Students.size();
+		varWeight=toSecond(varWeight);
 	}
 	public class SwingCal extends JFrame {
 
@@ -957,7 +1051,11 @@ public class SwingBMI extends JFrame {
 			
 			ave();
 			modeBMI=mod();
+			modeHeight=modHeight();
+			modeWeight=modWeight();
 		    medBMI=med();
+		    medHeight=medHeight();
+		    medWeight=medWeight();
 			var();
 			
 			JPanel panel = new JPanel();
@@ -969,17 +1067,53 @@ public class SwingBMI extends JFrame {
 			menuBar.setBounds(0, 10, 373, 25);
 			panel.add(menuBar);
 			
+			textField = new JTextField();
+			textField.setBounds(236, 12, 145, 35);
+			contentPane.add(textField);
+			textField.setColumns(10);
+			textField.setEditable(false);
+			
+			textField_1 = new JTextField();
+			textField_1.setBounds(236, 59, 145, 35);
+			contentPane.add(textField_1);
+			textField_1.setColumns(10);
+			textField_1.setEditable(false);
+			
+			textField_2 = new JTextField();
+			textField_2.setBounds(236, 106, 145, 35);
+			contentPane.add(textField_2);
+			textField_2.setColumns(10);
+			textField_2.setEditable(false);
+			
+			JScrollPane scrollPane = new JScrollPane();
+			scrollPane.setBounds(31, 172, 343, 45);
+			contentPane.add(scrollPane);
+			
+			JTextArea textArea = new JTextArea();
+			scrollPane.setViewportView(textArea);
+			textArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
+			textArea.setEditable(false);
+			
 			JButton btnNewButton = new JButton("\u8EAB\u9AD8\u67F1\u5F62\u56FE");
 			btnNewButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
+					textField.setText(String.valueOf(aveHeight));
+					textField_1.setText(String.valueOf(medHeight));
+					textField_2.setText(String.valueOf(varHeight));
+					String mode="";
+					Iterator<Double>iter=modeHeight.iterator();
+					while(iter.hasNext()){
+						mode=mode+String.valueOf(iter.next())+"\t";
+					}
+					textArea.setText(mode);
 					sortStudents(new heightsComparator());
 					int num[]=new int[10];
 					double min=Students.get(0).height;
 					double max=Students.get(Students.size()-1).height;
 					double width=(max-min)/10.0;
-					Iterator<Student> iter=Students.iterator();
-					while(iter.hasNext()){
-						Student student=iter.next();
+					Iterator<Student> iter_1=Students.iterator();
+					while(iter_1.hasNext()){
+						Student student=iter_1.next();
 						int n=(int)((student.height-min)/width);
 						if(n==10)
 						{
@@ -998,14 +1132,23 @@ public class SwingBMI extends JFrame {
 			JButton btnNewButton_1 = new JButton("\u4F53\u91CD\u67F1\u5F62\u56FE");
 			btnNewButton_1.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
+					textField.setText(String.valueOf(aveWeight));
+					textField_1.setText(String.valueOf(medWeight));
+					textField_2.setText(String.valueOf(varWeight));
+					String mode="";
+					Iterator<Double>iter=modeWeight.iterator();
+					while(iter.hasNext()){
+						mode=mode+String.valueOf(iter.next())+"\t";
+					}
+					textArea.setText(mode);
 					sortStudents(new weightsComparator());
 					int num[]=new int[10];
 					double min=Students.get(0).weight;
 					double max=Students.get(Students.size()-1).weight;
 					double width=(max-min)/10.0;
-					Iterator<Student> iter=Students.iterator();
-					while(iter.hasNext()){
-						Student student=iter.next();
+					Iterator<Student> iter_1=Students.iterator();
+					while(iter_1.hasNext()){
+						Student student=iter_1.next();
 						int n=(int)((student.weight-min)/width);
 						if(n==10)
 						{
@@ -1023,27 +1166,6 @@ public class SwingBMI extends JFrame {
 			JButton btnBmi = new JButton("BMI\u67F1\u5F62\u56FE");
 			btnBmi.setFont(new Font("宋体", Font.PLAIN, 16));
 			menuBar.add(btnBmi);
-			
-			textField = new JTextField();
-			textField.setBounds(236, 12, 145, 35);
-			contentPane.add(textField);
-			textField.setColumns(10);
-			textField.setEditable(false);
-			textField.setText(String.valueOf(aveBMI));
-			
-			textField_1 = new JTextField();
-			textField_1.setBounds(236, 59, 145, 35);
-			contentPane.add(textField_1);
-			textField_1.setColumns(10);
-			textField_1.setEditable(false);
-			textField_1.setText(String.valueOf(medBMI));
-			
-			textField_2 = new JTextField();
-			textField_2.setBounds(236, 106, 145, 35);
-			contentPane.add(textField_2);
-			textField_2.setColumns(10);
-			textField_2.setEditable(false);
-			textField_2.setText(String.valueOf(varBMI));
 			
 			JLabel label = new JLabel("\u5E73\u5747\u6570\uFF1A");
 			label.setFont(new Font("宋体", Font.PLAIN, 16));
@@ -1065,23 +1187,25 @@ public class SwingBMI extends JFrame {
 			label_3.setBounds(43, 139, 103, 35);
 			contentPane.add(label_3);
 			
-			JScrollPane scrollPane = new JScrollPane();
-			scrollPane.setBounds(31, 172, 343, 45);
-			contentPane.add(scrollPane);
-			
-			JTextArea textArea = new JTextArea();
-			scrollPane.setViewportView(textArea);
-			textArea.setFont(new Font("Monospaced", Font.PLAIN, 16));
 			btnBmi.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent arg0) {
+					textField.setText(String.valueOf(aveBMI));
+					textField_1.setText(String.valueOf(medBMI));
+					textField_2.setText(String.valueOf(varBMI));
+					String mode="";
+					Iterator<Double>iter=modeBMI.iterator();
+					while(iter.hasNext()){
+						mode=mode+String.valueOf(iter.next())+"\t";
+					}
+					textArea.setText(mode);
 					sortStudents(new bmisComparator());
 					int num[]=new int[10];
 					double min=Students.get(0).bmi;
 					double max=Students.get(Students.size()-1).bmi;
 					double width=(max-min)/10.0;
-					Iterator<Student> iter=Students.iterator();
-					while(iter.hasNext()){
-						Student student=iter.next();
+					Iterator<Student> iter_1=Students.iterator();
+					while(iter_1.hasNext()){
+						Student student=iter_1.next();
 						int n=(int)((student.bmi-min)/width);
 						if(n==10)
 						{
@@ -1093,13 +1217,6 @@ public class SwingBMI extends JFrame {
 					showDraw(min,max,width,num,"BMI");
 				}
 			});
-			String mode="";
-			Iterator<Student>iter=Students.iterator();
-			while(iter.hasNext()){
-				mode=mode+String.valueOf(iter.next().bmi)+"\t";
-			}
-			textArea.setText(mode);
-			textArea.setEditable(false);
 		}
 	}
 	public IntervalXYDataset createBMI(double min,double width,int []num,String butt) {
